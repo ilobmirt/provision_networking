@@ -1,0 +1,54 @@
+# =================================================================================================#
+# ROLE FUNCTION - Provision a Virtual Extended LAN                                                 #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/01 - Get address of desired vxlan interface"
+  ansible.builtin.set_fact:
+    fact_vxlan_host_ip: "{{ hostvars[inventory_hostname]['ansible_%s' | format(input_network.interface)].ipv4.address }}"
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/02 - Provision supplied VXLAN network"
+  community.general.nmcli:
+    conn_name: "{{ input_network.name }}"
+    type: vxlan
+    state: present
+    vxlan_id: "{{ input_network.vxlan_id }}"
+    vxlan_local: "{{ fact_vxlan_host_ip }}"
+    vxlan_remote: "{{ input_network.vxlan_remote }}"
+  become: true
+  register: vxlan_build
+  when: false
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/02 - Provision supplied VXLAN network"
+  # noqa: yaml[line-length]
+  ansible.builtin.command:
+    cmd: "nmcli connection add type vxlan con-name {{ input_network.name }} ifname {{ input_network.ifname }} id {{ input_network.vxlan_id }} local {{ fact_vxlan_host_ip }} remote {{ input_network.vxlan_remote }}"
+  become: true
+  changed_when: false
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/03 - Attach to bridge"
+  # noqa: no-handler
+  ansible.builtin.command:
+    cmd: "nmcli con modify {{ input_network.name }} master {{ input_network.master }} slave-type bridge"
+  become: true
+  changed_when: false
+  when: (input_network.master is defined)
+
+# -----
+# FIREWALLD: enable port
+# -----
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/04 - Add to port for vxlan"
+  ansible.posix.firewalld:
+    zone: public
+    port: "8472/udp"
+    permanent: true
+    state: enabled
+  become: true
+  register: firewalld_enable_port_action
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_VXLAN/05 - reload config"
+  # noqa: no-handler
+  ansible.builtin.command:
+    cmd: "firewall-cmd --reload"
+  become: true
+  changed_when: false
+  when: ( firewalld_enable_port_action.changed )

@@ -1,0 +1,23 @@
+# =================================================================================================#
+# ROLE FUNCTION - Provision a bridge                                                               #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_BRIDGE/01 - Provision supplied bridge network"
+  community.general.nmcli:
+    conn_name: "{{ input_network.name }}"
+    type: bridge
+    state: present
+    autoconnect: "{{ input_network.autoconnect | default(omit) }}"
+    method4: "{{ (input_network.ipv4 is string) | ternary(input_network.ipv4, 'manual', 'none') }}"
+    ip4: "{{ input_network.ipv4.address | default(omit) }}"
+    gw4: "{{ input_network.ipv4.gateway | default(omit) }}"
+    dns4: "{{ input_network.ipv4.dns | default(omit) }}"
+    dns4_search: "{{ input_network.ipv4.search_domains | default(omit) }}"
+    routes4: "{{ input_network.ipv4.routes | default(omit) }}"
+    method6: "{{ (input_network.ipv6 is string) | ternary(input_network.ipv6, 'manual', 'none') }}"
+    ip6: "{{ input_network.ipv6.address | default(omit) }}"
+    gw6: "{{ input_network.ipv6.gateway | default(omit) }}"
+    dns6: "{{ input_network.ipv6.dns | default(omit) }}"
+    dns6_search: "{{ input_network.ipv6.search_domains | default(omit) }}"
+    routes6: "{{ input_network.ipv6.routes | default(omit) }}"
+  become: true

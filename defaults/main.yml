@@ -1,0 +1,11 @@
+# =================================================================================================#
+# Group Vars                                                                                       #
+# =================================================================================================#
+
+network_provision_playbook_config: [] # User will edit this to modify test_role_base_config
+
+network_provision_role_config:
+  tasks:
+    - PREREQ
+    - PROVISION
+  networks: []

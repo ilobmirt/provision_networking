@@ -1,0 +1,9 @@
+# =================================================================================================#
+# ROLE FUNCTION - Remove the supplied network                                                      #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/FUNC_REMOVE_NETWORK/01 - Remove supplied network"
+  community.general.nmcli:
+    conn_name: "{{ input_network.name }}"
+    state: absent
+  become: true

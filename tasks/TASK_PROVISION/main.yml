@@ -1,0 +1,43 @@
+# =================================================================================================#
+# ROLE TASK - PREREQUISITES SCRIPT                                                                 #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/01 - Remove Absent"
+  ansible.builtin.include_tasks: func_remove_network.yml
+  vars:
+    input_network: "{{ current_network }}"
+  with_items: "{{ network_provision_role_config.networks | selectattr('status', 'equalto', 'absent') }}"
+  loop_control:
+    loop_var: current_network
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/02 - Type = BRIDGE"
+  ansible.builtin.include_tasks: func_bridge.yml
+  vars:
+    input_network: "{{ current_network }}"
+  with_items: "{{ network_provision_role_config.networks | rejectattr('status', 'equalto', 'absent') | selectattr('type', 'equalto', 'bridge') }}"
+  loop_control:
+    loop_var: current_network
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/03 - Type = ETHERNET"
+  ansible.builtin.include_tasks: func_ethernet.yml
+  vars:
+    input_network: "{{ current_network }}"
+  with_items: "{{ network_provision_role_config.networks | rejectattr('status', 'equalto', 'absent') | selectattr('type', 'equalto', 'ethernet') }}"
+  loop_control:
+    loop_var: current_network
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/03 - Type = VLAN"
+  ansible.builtin.include_tasks: func_vlan.yml
+  vars:
+    input_network: "{{ current_network }}"
+  with_items: "{{ network_provision_role_config.networks | rejectattr('status', 'equalto', 'absent') | selectattr('type', 'equalto', 'vlan') }}"
+  loop_control:
+    loop_var: current_network
+
+- name: "PROVISION_NETWORKING/TASK_PROVISION/03 - Type = VXLAN"
+  ansible.builtin.include_tasks: func_vxlan.yml
+  vars:
+    input_network: "{{ current_network }}"
+  with_items: "{{ network_provision_role_config.networks | rejectattr('status', 'equalto', 'absent') | selectattr('type', 'equalto', 'vxlan') }}"
+  loop_control:
+    loop_var: current_network

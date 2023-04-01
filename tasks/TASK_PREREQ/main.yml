@@ -1,0 +1,16 @@
+# =================================================================================================#
+# ROLE TASK - PREREQUISITES SCRIPT                                                                 #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_PREREQ/01 - Update System Software"
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: full
+  become: true
+
+- name: "PROVISION_NETWORKING/TASK_PREREQ/02 - Install Package network-manager"
+  # noqa: package-latest
+  ansible.builtin.apt:
+    name: network-manager
+    state: latest
+  become: true

@@ -1,0 +1,21 @@
+# =================================================================================================#
+# ROLE MAIN SCRIPT                                                                                 #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/MAIN/01 - Merge user edits"
+  ansible.builtin.set_fact:
+    network_provision_role_config: "{{ network_provision_role_config | combine(network_provision_playbook_config, recursive=True) }}"
+
+- name: "PROVISION_NETWORKING/MAIN/02 - Organize order of operations for tasks"
+  ansible.builtin.set_fact:
+    fact_network_provision_config_task_upper: "{{ network_provision_role_config.tasks | upper }}"
+    fact_network_provision_config_task_order:
+      - 01,PREREQ!
+      - 02,PROVISION!
+
+- name: "PROVISION_NETWORKING/MAIN/03 - RUN TASKS"
+  ansible.builtin.include_tasks: "TASK_{{ task_item }}/main.yml"
+  when: (task_item in fact_network_provision_config_task_upper)
+  loop: "{{fact_network_provision_config_task_order|join('\n')|regex_findall('^[0-9]+[,](.+)!.*','\\1')|upper}}"
+  loop_control:
+    loop_var: task_item
