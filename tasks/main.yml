@@ -11,7 +11,8 @@
     fact_network_provision_config_task_upper: "{{ network_provision_role_config.tasks | upper }}"
     fact_network_provision_config_task_order:
       - 01,PREREQ!
-      - 02,PROVISION!
+      - 02,IPCALC!
+      - 03,PROVISION!
 
 - name: "PROVISION_NETWORKING/MAIN/03 - RUN TASKS"
   ansible.builtin.include_tasks: "TASK_{{ task_item }}/main.yml"

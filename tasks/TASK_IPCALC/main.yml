@@ -1,0 +1,30 @@
+# =================================================================================================#
+# ROLE TASK - Calculate IPs for networks                                                           #
+# =================================================================================================#
+
+- name: "PROVISION_NETWORKING/TASK_IPCALC/01 - Set script facts"
+  ansible.builtin.set_fact:
+    fact_script_path: "{{ role_path }}/scripts"
+    fact_script_input:
+      input_hostname: "{{ inventory_hostname }}"
+      input_play_hosts: "{{ ansible_play_hosts_all }}"
+      role_data: "{{ network_provision_role_config }}"
+
+- name: "PROVISION_NETWORKING/TASK_IPCALC/02 - Excecute Script"
+# noqa: jinja[invalid]
+  ansible.builtin.command:
+    cmd: "python {{ fact_script_path }}/gen_ipv4_seq.py"
+    stdin: "{{ fact_script_input | to_nice_yaml }}"
+  changed_when: false
+  register: comp_script_output
+  delegate_to: localhost
+
+- name: "PROVISION_NETWORKING/TASK_IPCALC/FUNC_IPV4_SEQ/03 - apply script out to fact"
+  ansible.builtin.set_fact:
+    fact_script_output: "{{ comp_script_output.stdout | from_yaml }}"
+  when: comp_script_output.stdout | length > 0
+
+- name: "PROVISION_NETWORKING/TASK_IPCALC/FUNC_IPV4_SEQ/04 - apply fact to role"
+  ansible.builtin.set_fact:
+    network_provision_role_config: "{{ fact_script_output }}"
+  when: comp_script_output.stdout | length > 0

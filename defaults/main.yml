@@ -7,5 +7,6 @@ network_provision_playbook_config: [] # User will edit this to modify test_role_
 network_provision_role_config:
   tasks:
     - PREREQ
+    - IPCALC
     - PROVISION
   networks: []
