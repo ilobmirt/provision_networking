@@ -42,6 +42,8 @@ for current_network in stdin_dict['role_data']['networks']:
     # Skip if ipv4.address and ipv4.gateway nonexistant
     if 'ipv4' not in current_network.keys():
         continue
+    if type(current_network['ipv4'])!=type({}):
+        continue
     if ('address' not in current_network['ipv4'].keys()) and ('gateway' not in current_network['ipv4'].keys()):
         continue
 
